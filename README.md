@@ -10,7 +10,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.md)
 [![GitHub Stars](https://img.shields.io/github/stars/gerardoramirez/vibe-roaster?style=social)](https://github.com/gerardoramirez/vibe-roaster)
 
-[Live Demo](https://vibe-roaster.com) • [Documentation](docs/) • [Report Bug](https://github.com/gerardoramirez/vibe-roaster/issues) • [Request Feature](https://github.com/gerardoramirez/vibe-roaster/issues)
+[Live Demo](https://vibe-roaster.com) • [Documentation](docs/) • [Report Bug](https://github.com/Gramz10/vibe-roaster/issues) • [Request Feature](https://github.com/Gramz10/vibe-roaster/issues)
 
 ---
 
@@ -211,9 +211,8 @@ If Vibe-Roaster helped you write more secure code (or just made you laugh), give
 
 **Built by:** Gerardo Ramirez
 
-- 🌐 Portfolio: [gerardoramirez.dev](https://gerardoramirez.dev)
-- 💼 LinkedIn: [linkedin.com/in/gerardoramirez](https://linkedin.com/in/gerardoramirez)
-- 🐦 Twitter: [@gerardoram1010](https://twitter.com/gerardoram1010)
+- 💼 LinkedIn: [linkedin.com/in/gram95](https://www.linkedin.com/in/gram95)
+- 🐦 Twitter: [@grammz10](https://twitter.com/grammz10)
 - ✉️ Email: gerardoram1010@gmail.com
 
 ---
