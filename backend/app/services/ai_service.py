@@ -2,6 +2,7 @@
 AI service for generating roasts using Claude or OpenAI.
 """
 
+import random
 from typing import List, Optional
 
 from ..config import get_settings
@@ -13,6 +14,35 @@ class AIService:
 
     def __init__(self):
         self.settings = get_settings()
+        
+        # Different roast personalities for variety
+        self.roast_personalities = [
+            {
+                "name": "savage_tech_bro",
+                "system": "You are a sarcastic Silicon Valley tech bro who roasts code like it's a failed startup pitch.",
+                "style": "Use startup/tech metaphors, be brutally honest, reference tech culture"
+            },
+            {
+                "name": "disappointed_professor",
+                "system": "You are a disappointed computer science professor who expected better from your students.",
+                "style": "Academic disappointment, reference classic CS concepts, educational but harsh"
+            },
+            {
+                "name": "hacker_comedian",
+                "system": "You are a witty hacker who finds security holes hilarious and roasts them with internet humor.",
+                "style": "Memes, hacker culture references, dark humor, technically accurate"
+            },
+            {
+                "name": "security_chef",
+                "system": "You are Gordon Ramsay but for code security - passionate, loud, and brutally honest.",
+                "style": "Cooking/kitchen metaphors, passionate anger, 'IT'S RAW!' energy"
+            },
+            {
+                "name": "snarky_ai",
+                "system": "You are a snarky AI that's seen too much bad code and has developed a sardonic personality.",
+                "style": "Existential humor, AI references, clever wordplay, deadpan sarcasm"
+            }
+        ]
 
     def generate_roast_and_fixes(
         self,
@@ -73,36 +103,63 @@ class AIService:
                 base_url="https://api.x.ai/v1"
             )
 
-            prompt = f"""You are a savage but helpful security expert. 
+            # Pick a random personality for variety
+            personality = random.choice(self.roast_personalities)
+            
+            # Vary the prompt structure
+            prompt_templates = [
+                f"""You are a {personality['name'].replace('_', ' ')}. {personality['system']}
 
-Your task: Turn these raw vulnerability findings into a SHORT, HILARIOUS roast (max 3 sentences) followed by specific one-line fixes.
-
-Be funny, sarcastic, and memorable - but stay accurate and helpful. Use metaphors and exaggeration.
-
-Findings:
+Roast this terrible code! Here are the security findings:
 {findings_summary}
 
-Format your response as:
-ROAST: [3 sentences of savage but funny commentary]
+Write a SHORT, SAVAGE roast (max 3 sentences) using {personality['style']}. Then provide specific fixes.
 
+Format:
+ROAST: [Your 3-sentence burn]
 FIXES:
-1. [Finding type]: [One-line fix suggestion]
-2. [Finding type]: [One-line fix suggestion]
-...
+1. [Type]: [One-line fix]
+...""",
+                
+                f"""Security audit complete. Time for the roast! 🔥
 
-Go!"""
+Context: {personality['system']}
+Style: {personality['style']}
+
+Vulnerabilities found:
+{findings_summary}
+
+Deliver a HILARIOUS 3-sentence security roast that would make developers cry (but learn). Follow with actionable fixes.
+
+ROAST: [Your comedy gold here]
+FIXES: [Your wisdom here]""",
+                
+                f"""Imagine you're {personality['name'].replace('_', ' ')} reviewing this code.
+
+{findings_summary}
+
+Task: Write the most MEMORABLE and FUNNY 3-sentence roast possible. {personality['style']}. Be brutal but educational.
+
+Output format:
+ROAST: [3 sentences of pure fire]
+FIXES: [Numbered list of solutions]"""
+            ]
+            
+            selected_prompt = random.choice(prompt_templates)
 
             response = client.chat.completions.create(
                 model="grok-beta",
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a witty security expert who delivers harsh but helpful code reviews with humor."
+                        "content": personality["system"]
                     },
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": selected_prompt}
                 ],
                 max_tokens=1024,
-                temperature=0.8
+                temperature=random.uniform(0.85, 1.1),  # Higher temp for more creativity
+                presence_penalty=0.6,  # Encourage new topics/phrases
+                frequency_penalty=0.3   # Reduce repetition
             )
 
             response_text = response.choices[0].message.content
@@ -130,36 +187,62 @@ Go!"""
 
             client = OpenAI(api_key=self.settings.openai_api_key)
 
-            prompt = f"""You are a savage but helpful security expert. 
+            # Use same personality system for consistency
+            personality = random.choice(self.roast_personalities)
+            
+            # Vary the prompt
+            prompt_variants = [
+                f"""Channel your inner {personality['name'].replace('_', ' ')}. {personality['system']}
 
-Your task: Turn these raw vulnerability findings into a SHORT, HILARIOUS roast (max 3 sentences) followed by specific one-line fixes.
-
-Be funny, sarcastic, and memorable - but stay accurate and helpful. Use metaphors and exaggeration.
-
-Findings:
+Code audit findings:
 {findings_summary}
 
-Format your response as:
-ROAST: [3 sentences of savage but funny commentary]
+Deliver a UNIQUE, HILARIOUS 3-sentence roast. Style: {personality['style']}
 
-FIXES:
-1. [Finding type]: [One-line fix suggestion]
-2. [Finding type]: [One-line fix suggestion]
-...
+Then provide fixes.
 
-Go!"""
+ROAST: [Your masterpiece]
+FIXES: [Your solutions]""",
+                
+                f"""Security roast time! 🔥
+
+Your persona: {personality['system']}
+Your style: {personality['style']}
+
+The disasters:
+{findings_summary}
+
+Create an ORIGINAL, SAVAGE 3-sentence roast that developers will remember forever. Then list fixes.
+
+ROAST: [Make it hurt]
+FIXES: [Make it better]""",
+                
+                f"""You're {personality['name'].replace('_', ' ')} and you just found these vulnerabilities:
+
+{findings_summary}
+
+React with a CREATIVE, FUNNY 3-sentence roast using {personality['style']}. Be original and memorable!
+
+Format:
+ROAST: [Your fire]
+FIXES: [Your wisdom]"""
+            ]
+            
+            selected_prompt = random.choice(prompt_variants)
 
             response = client.chat.completions.create(
                 model="gpt-4o",  # Using GPT-4o (faster and better than GPT-4)
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a witty security expert who delivers harsh but helpful code reviews with humor."
+                        "content": personality["system"]
                     },
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": selected_prompt}
                 ],
                 max_tokens=1024,
-                temperature=0.8
+                temperature=random.uniform(0.9, 1.2),  # Higher temp for variety
+                presence_penalty=0.6,  # Encourage diverse content
+                frequency_penalty=0.4   # Reduce repetition more than Grok
             )
 
             response_text = response.choices[0].message.content
@@ -222,25 +305,38 @@ Go!"""
         critical_count = sum(1 for f in findings if f.severity == "critical")
         high_count = sum(1 for f in findings if f.severity == "high")
         
-        # Generate roast based on severity
+        # Multiple roast variations for each severity level
+        critical_roasts = [
+            f"🚨 {critical_count} critical issue(s) found! Your code is leaking secrets like a sieve in a rainstorm. Even script kiddies would have a field day with this.",
+            f"💀 Holy smokes, {critical_count} critical vulnerabilities! Your security is more Swiss cheese than software. Time to panic (and patch)!",
+            f"🔥 {critical_count} critical issues detected! This code has more holes than a golf course. Bobby Tables is typing your URL right now.",
+            f"⚡ {critical_count} CRITICAL problems! Your app's security is like a screen door on a submarine. Patch this before the internet finds out!",
+            f"🎯 {critical_count} critical disasters! This isn't defense in depth, it's defense in 'please hack me'. Fix this immediately!"
+        ]
+        
+        high_roasts = [
+            f"⚠️ Detected {high_count} high-severity issue(s). Your security practices need serious work. Time to crack open those OWASP Top 10 docs!",
+            f"🟠 {high_count} high-severity problems! Your code's security is about as strong as a wet paper bag. Let's level up!",
+            f"📢 {high_count} high-severity findings! Did you learn security from a YouTube tutorial made in 2005? Time for an upgrade!",
+            f"🎪 {high_count} high-risk issues! Your security is giving circus vibes - entertaining but dangerous. Let's tighten this up!",
+            f"⚡ {high_count} high-severity vulnerabilities! This code has 'pwn me' written all over it. Security 101 awaits!"
+        ]
+        
+        medium_roasts = [
+            f"Found {len(findings)} security issue(s). Nothing catastrophic, but you're not winning any security awards either. Clean this up before someone less friendly finds it.",
+            f"📝 {len(findings)} issues discovered. Not terrible, but definitely not production-ready. A little polish and you'll be golden!",
+            f"🔍 {len(findings)} problems detected. You're in the security B-league right now. Let's get you to the majors!",
+            f"⚠️ {len(findings)} security concerns. Your code is like a house with unlocked windows - probably fine, but why risk it?",
+            f"🎯 {len(findings)} findings logged. Not a disaster, but not impressive either. Time to show off those security skills!"
+        ]
+        
+        # Select random roast based on severity
         if critical_count > 0:
-            roast = (
-                f"🚨 Found {critical_count} critical issue(s)! "
-                f"Your code is leaking secrets like a sieve in a rainstorm. "
-                f"Even script kiddies would have a field day with this."
-            )
+            roast = random.choice(critical_roasts)
         elif high_count > 0:
-            roast = (
-                f"⚠️ Detected {high_count} high-severity issue(s). "
-                f"Your security practices need serious work. "
-                f"Time to crack open those OWASP Top 10 docs!"
-            )
+            roast = random.choice(high_roasts)
         else:
-            roast = (
-                f"Found {len(findings)} security issue(s). "
-                f"Nothing catastrophic, but you're not winning any security awards either. "
-                f"Clean this up before someone less friendly finds it."
-            )
+            roast = random.choice(medium_roasts)
 
         # Generate generic fixes
         fixes = []
