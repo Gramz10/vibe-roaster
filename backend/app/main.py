@@ -218,10 +218,12 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     
+    # Use configurable host - defaults to 127.0.0.1 for security
+    # Set HOST=0.0.0.0 in environment for Docker/container deployments
     uvicorn.run(
         "app.main:app",
-        host="0.0.0.0",
-        port=8000,
+        host=settings.host,  # Configurable via environment variable
+        port=settings.port,
         reload=settings.debug
     )
 

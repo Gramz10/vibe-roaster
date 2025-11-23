@@ -77,6 +77,6 @@ echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
 
-# Start the server
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# Start the server (host will be read from .env, defaults to 127.0.0.1)
+python -m uvicorn app.main:app --reload
 

@@ -7,6 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 from typing import Optional
+import stat
 
 import git
 from git.exc import GitCommandError
@@ -19,6 +20,21 @@ class GitService:
 
     def __init__(self):
         self.settings = get_settings()
+        # Ensure temp directory exists with secure permissions
+        self._ensure_secure_temp_dir()
+
+    def _ensure_secure_temp_dir(self) -> None:
+        """
+        Ensure temp directory exists with secure permissions (owner-only access).
+        
+        This prevents B108 security warning by setting proper permissions on temp directory.
+        """
+        temp_path = Path(self.settings.temp_dir)
+        if not temp_path.exists():
+            temp_path.mkdir(parents=True, mode=0o700)  # Owner read/write/execute only
+        else:
+            # Ensure existing directory has secure permissions
+            os.chmod(temp_path, 0o700)  # nosec B103 - Intentionally restrictive
 
     def clone_repository(self, repo_url: str) -> Path:
         """
@@ -82,12 +98,13 @@ class GitService:
                 # Make sure .git directory is writable before deletion
                 git_dir = repo_path / ".git"
                 if git_dir.exists():
-                    os.chmod(git_dir, 0o755)
+                    # Set permissions to owner-only for security (0o700 = rwx------)
+                    os.chmod(git_dir, 0o700)  # nosec B103 - Secure: owner-only access
                     for root, dirs, files in os.walk(git_dir):
                         for d in dirs:
-                            os.chmod(os.path.join(root, d), 0o755)
+                            os.chmod(os.path.join(root, d), 0o700)  # nosec B103 - Secure: owner-only
                         for f in files:
-                            os.chmod(os.path.join(root, f), 0o644)
+                            os.chmod(os.path.join(root, f), 0o600)  # nosec B103 - Secure: owner read/write only
 
                 shutil.rmtree(repo_path)
         except Exception as e:

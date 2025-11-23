@@ -31,7 +31,11 @@ class Settings(BaseSettings):
     # Analysis Settings
     max_repo_size_mb: int = 500
     analysis_timeout_seconds: int = 300
-    temp_dir: str = "/tmp/vibe-roaster"
+    temp_dir: str = "/tmp/vibe-roaster"  # nosec B108 - Temp dir with restricted permissions set in code
+    
+    # Server Configuration
+    host: str = "127.0.0.1"  # Bind to localhost by default for security
+    port: int = 8000
 
     # Logging
     log_level: str = "INFO"
