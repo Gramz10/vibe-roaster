@@ -497,8 +497,8 @@ npm run test:e2e              # E2E tests (Playwright)
 
 Stuck? Have questions? We're here to help!
 
-- 💬 [GitHub Discussions](https://github.com/gerardoramirez/vibe-roaster/discussions) - Ask questions, share ideas
-- 🐛 [GitHub Issues](https://github.com/gerardoramirez/vibe-roaster/issues) - Report bugs, request features
+- 💬 [GitHub Discussions](https://github.com/Gramz10/vibe-roaster/discussions) - Ask questions, share ideas
+- 🐛 [GitHub Issues](https://github.com/Gramz10/vibe-roaster/issues) - Report bugs, request features
 - 📧 Email: gerardoram1010@gmail.com - Direct contact
 
 **Tips for getting help:**

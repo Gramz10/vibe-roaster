@@ -8,7 +8,7 @@ This project is built in public as a portfolio piece, but that doesn't mean it's
 
 ## 🏆 Project Creator & Maintainer
 
-**Gerardo Ramirez** ([@gerardoramirez](https://github.com/gerardoramirez))
+**Gerardo Ramirez** ([@Gramz10](https://github.com/Gramz10))
 - Project architecture and vision
 - Core development
 - Documentation
@@ -129,8 +129,8 @@ _Space reserved for contributors who go above and beyond_
 
 Want to contribute? Join the conversation!
 
-- 💬 [GitHub Discussions](https://github.com/gerardoramirez/vibe-roaster/discussions)
-- 🐛 [Issue Tracker](https://github.com/gerardoramirez/vibe-roaster/issues)
+- 💬 [GitHub Discussions](https://github.com/Gramz10/vibe-roaster/discussions)
+- 🐛 [Issue Tracker](https://github.com/Gramz10/vibe-roaster/issues)
 - 📧 Email: gerardoram1010@gmail.com
 
 ---

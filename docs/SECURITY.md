@@ -345,7 +345,7 @@ _No submissions yet - be the first!_
 ### Learn More
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [CWE Top 25](https://cwe.mitre.org/top25/)
-- [OpenAI API Security Best Practices](https://platform.openai.com/docs/guides/safety-best-practices)
+- [Anthropic API Security](https://docs.anthropic.com/claude/docs/security)
 
 ### Our Security Tools
 - **SAST:** Bandit (Python), ESLint security plugin
@@ -362,8 +362,8 @@ _No submissions yet - be the first!_
 **Expected Response Time:** Within 48 hours
 
 For non-security issues, please use:
-- **Bug Reports:** [GitHub Issues](https://github.com/gerardoramirez/vibe-roaster/issues)
-- **Feature Requests:** [GitHub Discussions](https://github.com/gerardoramirez/vibe-roaster/discussions)
+- **Bug Reports:** [GitHub Issues](https://github.com/Gramz10/vibe-roaster/issues)
+- **Feature Requests:** [GitHub Discussions](https://github.com/Gramz10/vibe-roaster/discussions)
 - **General Questions:** gerardoram1010@gmail.com
 
 ---

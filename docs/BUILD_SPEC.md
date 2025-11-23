@@ -286,7 +286,7 @@ MIT License - See LICENSE file for details.
 
 **Maintainer:** Gerardo Ramirez  
 **Email:** gerardoram1010@gmail.com  
-**GitHub:** [@gerardoramirez](https://github.com/gerardoramirez)
+**GitHub:** [@Gramz10](https://github.com/Gramz10)
 
 ---
 

@@ -274,9 +274,9 @@ Inspired by amazing open-source projects that take documentation seriously:
 
 Building this in public means I'd love your feedback, ideas, or questions!
 
-- **GitHub:** [github.com/gerardoramirez/vibe-roaster](https://github.com/gerardoramirez/vibe-roaster)
+- **GitHub:** [github.com/Gramz10/vibe-roaster](https://github.com/Gramz10/vibe-roaster)
 - **Email:** gerardoram1010@gmail.com
-- **LinkedIn:** [linkedin.com/in/gerardoramirez](https://linkedin.com/in/gerardoramirez)
+- **LinkedIn:** [linkedin.com/in/gram95](https://www.linkedin.com/in/gram95)
 
 If you find this project interesting:
 - ⭐ **Star the repo** to follow along

@@ -107,8 +107,8 @@ Example:
 
 ## Links
 
-- [Latest Release](https://github.com/gerardoramirez/vibe-roaster/releases/latest)
-- [All Releases](https://github.com/gerardoramirez/vibe-roaster/releases)
+- [Latest Release](https://github.com/Gramz10/vibe-roaster/releases/latest)
+- [All Releases](https://github.com/Gramz10/vibe-roaster/releases)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing Guidelines](docs/CONTRIBUTING.md)
 

@@ -369,8 +369,8 @@ Ideas we like but aren't prioritizing yet:
 This roadmap is influenced by community feedback!
 
 **Want to influence priorities?**
-- 🗣️ Join discussions: [GitHub Discussions](https://github.com/gerardoramirez/vibe-roaster/discussions)
-- 👍 Upvote features: [Feature Requests](https://github.com/gerardoramirez/vibe-roaster/issues?q=is%3Aissue+label%3Aenhancement)
+- 🗣️ Join discussions: [GitHub Discussions](https://github.com/Gramz10/vibe-roaster/discussions)
+- 👍 Upvote features: [Feature Requests](https://github.com/Gramz10/vibe-roaster/issues?q=is%3Aissue+label%3Aenhancement)
 - 💬 Share your use case: What would make Vibe-Roaster more useful for you?
 
 ---
@@ -418,8 +418,8 @@ Features are prioritized based on:
 ## 📞 Questions About the Roadmap?
 
 - 📧 Email: gerardoram1010@gmail.com
-- 💬 [GitHub Discussions](https://github.com/gerardoramirez/vibe-roaster/discussions)
-- 🐛 [GitHub Issues](https://github.com/gerardoramirez/vibe-roaster/issues)
+- 💬 [GitHub Discussions](https://github.com/Gramz10/vibe-roaster/discussions)
+- 🐛 [GitHub Issues](https://github.com/Gramz10/vibe-roaster/issues)
 
 ---
 
