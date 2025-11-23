@@ -1,499 +1,374 @@
 # Vibe-Roaster Backend
 
-**FastAPI-based API server for security analysis and AI roasting**
-
----
-
-## 🏗️ Architecture
-
-The backend is built with:
-- **FastAPI** - Modern, fast web framework
-- **SQLAlchemy** - ORM for database operations
-- **Alembic** - Database migrations
-- **Celery** - Asynchronous task processing
-- **Redis** - Task queue and caching
-- **PostgreSQL** - Primary database
-- **OpenAI API** - GPT-4 for roast generation
-
----
-
-## 📋 Prerequisites
-
-- Python 3.11 or higher
-- PostgreSQL 15+ (or use Docker)
-- Redis 7+ (or use Docker)
-- OpenAI API key (for AI features)
-- GitHub OAuth App credentials (for authentication)
+**FastAPI-based API server for AI-powered security analysis with personality 🔥**
 
 ---
 
 ## 🚀 Quick Start
 
-### Option 1: Docker Compose (Recommended)
+### Prerequisites
+
+- **Python 3.11+** (required)
+- **pip** (Python package manager)
+- **TruffleHog** (for secret scanning)
+- **Semgrep** (for SAST scanning)
+- **AI API Key** (xAI Grok or OpenAI)
+
+### Installation
+
+#### 1. Install Python Dependencies
 
 ```bash
-# From project root
-docker-compose up
-
-# Backend will be available at:
-# - API: http://localhost:8000
-# - API Docs: http://localhost:8000/docs
-```
-
-### Option 2: Local Development
-
-#### 1. Set Up Python Environment
-
-```bash
-# Navigate to backend directory
 cd backend
 
-# Create virtual environment
+# Create and activate virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# On macOS/Linux:
-source venv/bin/activate
-
-# On Windows:
-venv\Scripts\activate
-
-# Upgrade pip
-pip install --upgrade pip
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Install dev dependencies (for testing and linting)
-pip install -r requirements-dev.txt
 ```
 
-#### 2. Set Up Database
+#### 2. Install Security Scanning Tools
 
-**Using Docker:**
+**TruffleHog** (for detecting exposed secrets):
 ```bash
-# Start PostgreSQL
-docker run --name vibroast-db \
-  -e POSTGRES_USER=vibroast \
-  -e POSTGRES_PASSWORD=your_password \
-  -e POSTGRES_DB=vibroast \
-  -p 5432:5432 \
-  -d postgres:15
+# Using pip
+pip install trufflehog
 
-# Start Redis
-docker run --name vibroast-redis \
-  -p 6379:6379 \
-  -d redis:7-alpine
+# Or using brew (macOS)
+brew install trufflehog
+
+# Or using Go
+go install github.com/trufflesecurity/trufflehog/v3@latest
 ```
 
-**Using Local Installation:**
+**Semgrep** (for SAST - Static Application Security Testing):
 ```bash
-# macOS (using Homebrew)
-brew install postgresql@15 redis
-brew services start postgresql@15
-brew services start redis
+# Using pip (recommended)
+pip install semgrep
 
-# Create database
-createdb vibroast
+# Or using brew (macOS)
+brew install semgrep
 
-# Ubuntu/Debian
-sudo apt update
-sudo apt install postgresql-15 redis-server
-sudo systemctl start postgresql redis-server
+# Or using Docker
+docker pull returntocorp/semgrep
 ```
 
 #### 3. Configure Environment Variables
 
 ```bash
-# Copy example environment file
-cp .env.example .env
+# Copy example env file
+cp env.example .env
 
-# Edit .env with your values
+# Edit .env with your API keys
+nano .env  # or use your preferred editor
 ```
 
-**Required Environment Variables:**
-
+**Minimum required configuration:**
 ```bash
-# Database
-DATABASE_URL=postgresql://vibroast:your_password@localhost:5432/vibroast
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# Security
-SECRET_KEY=your-secret-key-here-use-something-random-and-long
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
-
-# GitHub OAuth
-GITHUB_CLIENT_ID=your_github_oauth_client_id
-GITHUB_CLIENT_SECRET=your_github_oauth_client_secret
-GITHUB_REDIRECT_URI=http://localhost:5173/auth/callback
-
-# OpenAI
-OPENAI_API_KEY=sk-your-openai-api-key-here
-OPENAI_MODEL=gpt-4
-
-# Environment
-ENVIRONMENT=development  # development, staging, or production
-DEBUG=True
-ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-
-# Logging
-LOG_LEVEL=INFO
+# At least ONE of these is required:
+GROK_API_KEY=xai-xxx  # Recommended - Grok gives savage, witty roasts
+# OR
+OPENAI_API_KEY=sk-xxx  # Fallback - Uses GPT-4o
 ```
 
-#### 4. Run Database Migrations
+**Get your API keys:**
+- **xAI Grok**: https://console.x.ai/ (recommended - free beta available!)
+- **OpenAI GPT**: https://platform.openai.com/api-keys
+
+#### 4. Run the Server
 
 ```bash
-# Run all migrations
-alembic upgrade head
+# Development mode (with hot reload)
+uvicorn app.main:app --reload
 
-# To create a new migration after changing models:
-alembic revision --autogenerate -m "Description of changes"
-```
-
-#### 5. Start the Development Server
-
-```bash
-# Start FastAPI server with hot reload
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-# Or use the convenience script:
+# Or using Python directly
 python -m app.main
 ```
 
-#### 6. Start Celery Worker (Optional, for background tasks)
+The API will be available at:
+- **API:** http://localhost:8000
+- **Interactive Docs:** http://localhost:8000/docs
+- **Health Check:** http://localhost:8000/health
+
+---
+
+## 📖 API Usage
+
+### Health Check
 
 ```bash
-# In a new terminal (with venv activated)
-celery -A app.tasks.celery_app worker --loglevel=info
+curl http://localhost:8000/health
+```
 
-# On Windows, you may need:
-celery -A app.tasks.celery_app worker --pool=solo --loglevel=info
+**Response:**
+```json
+{
+  "status": "roasting 🔥",
+  "version": "0.1.0",
+  "ai_configured": true
+}
+```
+
+### Scan a Repository
+
+```bash
+curl -X POST http://localhost:8000/scan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "repo_url": "https://github.com/username/repo"
+  }'
+```
+
+**Response:**
+```json
+{
+  "score": 6,
+  "roast": "Your API keys are exposed like a streaker at a football game! You've got secrets scattered around like confetti at a parade, and your SQL queries look like they were written by Bobby Tables himself. Time to read the OWASP Top 10 before someone pwns you.",
+  "findings": [
+    {
+      "type": "Exposed Secret",
+      "severity": "critical",
+      "file_path": "config/settings.py",
+      "line_number": null,
+      "description": "Detected AWS API Key exposed in code",
+      "code_snippet": "AWS_SECRET_KEY = 'AKIAIOSFODNN7EXAMPLE'"
+    }
+  ],
+  "suggested_fixes": [
+    {
+      "finding_type": "Exposed Secret",
+      "fix": "Move all secrets to environment variables and use a secrets manager like AWS Secrets Manager or HashiCorp Vault",
+      "example": null
+    }
+  ],
+  "repo_url": "https://github.com/username/repo",
+  "scan_timestamp": "2025-11-23T10:30:00.000Z"
+}
+```
+
+### Rate Limiting
+
+**Default:** 5 scans per minute per IP address
+
+If you exceed the rate limit:
+```json
+{
+  "error": "Rate limit exceeded: 5 per 1 minute"
+}
 ```
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Project Structure
 
 ```
 backend/
 ├── app/
-│   ├── main.py              # FastAPI application entry point
-│   ├── config.py            # Configuration management
-│   ├── dependencies.py      # Dependency injection
+│   ├── __init__.py
+│   ├── main.py                 # FastAPI app entry point
+│   ├── config.py               # Configuration management
+│   ├── schemas.py              # Pydantic request/response models
 │   │
-│   ├── api/                 # API routes
-│   │   ├── routes/
-│   │   │   ├── auth.py      # Authentication endpoints
-│   │   │   ├── analysis.py  # Analysis CRUD
-│   │   │   ├── repos.py     # GitHub repository endpoints
-│   │   │   └── health.py    # Health check
-│   │   └── middleware/
-│   │       ├── cors.py      # CORS configuration
-│   │       ├── auth.py      # JWT authentication middleware
-│   │       └── rate_limit.py
-│   │
-│   ├── core/                # Business logic
-│   │   ├── analyzer/
-│   │   │   ├── scanner.py   # Main scanning orchestrator
-│   │   │   ├── parsers/     # Language-specific parsers
-│   │   │   │   ├── python_parser.py
-│   │   │   │   ├── javascript_parser.py
-│   │   │   │   └── typescript_parser.py
-│   │   │   ├── rules/       # Security rule definitions
-│   │   │   │   ├── sql_injection.py
-│   │   │   │   ├── xss.py
-│   │   │   │   ├── secrets.py
-│   │   │   │   └── auth.py
-│   │   │   └── patterns.py  # Vulnerability patterns
-│   │   ├── ai/
-│   │   │   ├── roaster.py   # GPT-4 integration
-│   │   │   └── prompts.py   # AI prompt templates
-│   │   └── github/
-│   │       ├── oauth.py     # GitHub OAuth flow
-│   │       └── client.py    # GitHub API client
-│   │
-│   ├── models/              # SQLAlchemy models
-│   │   ├── user.py
-│   │   ├── analysis.py
-│   │   └── vulnerability.py
-│   │
-│   ├── schemas/             # Pydantic schemas
-│   │   ├── user.py
-│   │   ├── analysis.py
-│   │   └── vulnerability.py
-│   │
-│   ├── services/            # Service layer
-│   │   ├── analysis_service.py
-│   │   ├── github_service.py
-│   │   └── user_service.py
-│   │
-│   ├── tasks/               # Celery tasks
-│   │   ├── celery_app.py
-│   │   └── analysis_tasks.py
-│   │
-│   └── utils/               # Utility functions
-│       ├── security.py      # Encryption, hashing
-│       ├── logging.py       # Structured logging
-│       └── helpers.py       # Misc helpers
+│   └── services/
+│       ├── __init__.py
+│       ├── git_service.py      # Git repository cloning
+│       ├── scanner_service.py  # TruffleHog + Semgrep integration
+│       └── ai_service.py       # Claude/OpenAI roast generation
 │
-├── alembic/                 # Database migrations
-│   ├── versions/
-│   └── env.py
-│
-├── tests/                   # Test suite
-│   ├── conftest.py          # Pytest fixtures
-│   ├── unit/
-│   │   ├── test_analyzer.py
-│   │   └── test_ai.py
-│   ├── integration/
-│   │   └── test_api.py
-│   └── e2e/
-│       └── test_full_flow.py
-│
-├── .env.example             # Example environment variables
-├── .flake8                  # Flake8 configuration
-├── .pylintrc                # Pylint configuration
-├── mypy.ini                 # MyPy configuration
-├── pytest.ini               # Pytest configuration
-├── requirements.txt         # Production dependencies
-├── requirements-dev.txt     # Development dependencies
-├── Dockerfile               # Docker image definition
-└── README.md                # This file
+├── requirements.txt            # Production dependencies
+├── env.example                 # Environment variable template
+└── README.md                   # This file
 ```
+
+---
+
+## 🔧 Configuration
+
+All configuration is done via environment variables in `.env`:
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GROK_API_KEY` | Yes* | - | xAI Grok API key (recommended) |
+| `OPENAI_API_KEY` | Yes* | - | OpenAI GPT-4o API key (fallback) |
+| `ENVIRONMENT` | No | `development` | Environment (development/staging/production) |
+| `DEBUG` | No | `True` | Enable debug mode |
+| `ALLOWED_ORIGINS` | No | `http://localhost:5173,http://localhost:3000` | CORS allowed origins |
+| `RATE_LIMIT_SCANS_PER_MINUTE` | No | `5` | Max scans per minute per IP |
+| `MAX_REPO_SIZE_MB` | No | `500` | Maximum repository size to scan |
+| `TEMP_DIR` | No | `/tmp/vibe-roaster` | Temporary directory for clones |
+| `LOG_LEVEL` | No | `INFO` | Logging level |
+
+\* At least one AI API key is required
 
 ---
 
 ## 🧪 Testing
 
-### Run All Tests
+### Manual Testing
 
 ```bash
-# Run entire test suite
-pytest
-
-# Run with coverage report
-pytest --cov=app --cov-report=html
-
-# Open coverage report
-open htmlcov/index.html  # macOS
-xdg-open htmlcov/index.html  # Linux
-start htmlcov/index.html  # Windows
-```
-
-### Run Specific Tests
-
-```bash
-# Run unit tests only
-pytest tests/unit/
-
-# Run integration tests
-pytest tests/integration/
-
-# Run specific test file
-pytest tests/unit/test_analyzer.py
-
-# Run specific test function
-pytest tests/unit/test_analyzer.py::test_detect_sql_injection
-
-# Run tests matching pattern
-pytest -k "sql_injection"
-```
-
-### Watch Mode (Re-run on file changes)
-
-```bash
-# Install pytest-watch
-pip install pytest-watch
-
-# Run in watch mode
-ptw
-```
-
----
-
-## 🔍 Code Quality
-
-### Linting
-
-```bash
-# Format code with Black
-black .
-
-# Sort imports with isort
-isort .
-
-# Lint with flake8
-flake8 .
-
-# Lint with pylint
-pylint app/
-
-# Type check with mypy
-mypy app/
-
-# Run all quality checks
-./scripts/lint.sh  # (create this script)
-```
-
-### Pre-commit Hooks (Recommended)
-
-```bash
-# Install pre-commit
-pip install pre-commit
-
-# Set up git hooks
-pre-commit install
-
-# Manually run on all files
-pre-commit run --all-files
-```
-
-Create `.pre-commit-config.yaml`:
-```yaml
-repos:
-  - repo: https://github.com/psf/black
-    rev: 23.11.0
-    hooks:
-      - id: black
-        language_version: python3.11
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
-    hooks:
-      - id: mypy
-        additional_dependencies: [types-all]
-```
-
----
-
-## 🔐 Security Scanning
-
-```bash
-# Check for known vulnerabilities in dependencies
-pip-audit
-
-# Static security analysis with Bandit
-bandit -r app/ -ll
-
-# Check for exposed secrets
-detect-secrets scan --all-files
-```
-
----
-
-## 📊 API Documentation
-
-Once the server is running, visit:
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
-- **OpenAPI JSON:** http://localhost:8000/openapi.json
-
-### Example API Requests
-
-```bash
-# Health check
+# Test health endpoint
 curl http://localhost:8000/health
 
-# Start analysis (requires authentication)
-curl -X POST http://localhost:8000/api/analysis/start \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+# Test scan with a real repo (use a small, public repo)
+curl -X POST http://localhost:8000/scan \
   -H "Content-Type: application/json" \
-  -d '{
-    "repo_url": "https://github.com/user/repo",
-    "branch": "main",
-    "intensity": "medium"
-  }'
+  -d '{"repo_url": "https://github.com/Gramz10/vibe-roaster"}'
 
-# Get analysis results
-curl http://localhost:8000/api/analysis/123e4567-e89b-12d3-a456-426614174000 \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+# Test rate limiting (run 6+ times quickly)
+for i in {1..6}; do
+  curl -X POST http://localhost:8000/scan \
+    -H "Content-Type: application/json" \
+    -d '{"repo_url": "https://github.com/username/repo"}'
+  echo ""
+done
 ```
+
+### Interactive API Documentation
+
+Visit http://localhost:8000/docs for Swagger UI where you can:
+- See all available endpoints
+- Test endpoints directly in your browser
+- View request/response schemas
 
 ---
 
-## 🐛 Debugging
+## 🛡️ How It Works
 
-### Using Python Debugger
+### Scan Process
 
-```python
-# Add breakpoint in code
-import pdb; pdb.set_trace()
+1. **Validate Request**
+   - Check that the URL is a valid GitHub repository
+   - Verify rate limits haven't been exceeded
 
-# Or use built-in breakpoint (Python 3.7+)
-breakpoint()
-```
+2. **Clone Repository**
+   - Shallow clone (depth=1) for speed
+   - Check repository size doesn't exceed limits
+   - Store in temporary directory (`/tmp/vibe-roaster`)
 
-### VS Code Launch Configuration
+3. **Run Security Scans**
+   - **TruffleHog**: Scans for exposed secrets (API keys, passwords, tokens)
+   - **Semgrep**: Runs SAST rules for common vulnerabilities (SQL injection, XSS, etc.)
 
-Create `.vscode/launch.json`:
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "FastAPI Server",
-      "type": "python",
-      "request": "launch",
-      "module": "uvicorn",
-      "args": [
-        "app.main:app",
-        "--reload",
-        "--host", "0.0.0.0",
-        "--port", "8000"
-      ],
-      "cwd": "${workspaceFolder}/backend",
-      "envFile": "${workspaceFolder}/backend/.env"
-    }
-  ]
-}
-```
+4. **Generate AI Roast**
+   - Sends findings to Claude 3.5 Sonnet (or GPT-4 as fallback)
+   - AI generates a humorous but accurate 3-sentence roast
+   - AI provides specific fix suggestions for each finding
 
-### Logging
+5. **Calculate Security Score**
+   - Weighted scoring based on severity:
+     - Critical: -3.0 points
+     - High: -2.0 points
+     - Medium: -1.0 points
+     - Low: -0.5 points
+   - Score ranges from 1 (terrible) to 10 (perfect)
 
-```python
-import logging
-
-logger = logging.getLogger(__name__)
-
-# Log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
-logger.info("Analysis started", extra={"analysis_id": analysis_id})
-logger.error("Failed to clone repository", exc_info=True)
-```
+6. **Cleanup**
+   - **ALWAYS** deletes the cloned repository
+   - No code is ever permanently stored
+   - Privacy-first design
 
 ---
 
-## 🚢 Deployment
+## 🔒 Security & Privacy
 
-### Environment-Specific Configuration
+### Privacy Guarantees
+
+- ✅ **No code storage** - Repositories are analyzed in memory only
+- ✅ **Immediate cleanup** - Cloned repos deleted after each scan
+- ✅ **No logging of code** - Only metadata is logged
+- ✅ **Temporary directories** - All analysis in `/tmp` (cleared on reboot)
+
+### Security Features
+
+- ✅ **Rate limiting** - Prevents abuse (5 scans/min per IP)
+- ✅ **Input validation** - Pydantic schemas validate all inputs
+- ✅ **Size limits** - Repositories over 500MB are rejected
+- ✅ **Timeout protection** - Scans timeout after 5 minutes
+- ✅ **Error handling** - Graceful degradation on failures
+- ✅ **CORS protection** - Only allowed origins can access the API
+
+### What Data Goes to AI Providers?
+
+**Sent to Claude/OpenAI:**
+- Finding summaries (type, severity, file paths)
+- Vulnerability descriptions
+- NO full source code
+
+**Example of what's sent:**
+```
+1. Exposed Secret (critical) in config/settings.py: Detected AWS API Key exposed in code
+2. SQL Injection (high) in app/database.py: SQL query uses string concatenation
+```
+
+**NOT sent:**
+- Your entire codebase
+- Personally identifiable information
+- Proprietary business logic
+
+---
+
+## 🚨 Troubleshooting
+
+### "Module not found" errors
 
 ```bash
-# Development
-export ENVIRONMENT=development
-export DEBUG=True
+# Make sure you're in the virtual environment
+source venv/bin/activate
 
-# Staging
-export ENVIRONMENT=staging
-export DEBUG=False
-
-# Production
-export ENVIRONMENT=production
-export DEBUG=False
+# Reinstall dependencies
+pip install -r requirements.txt
 ```
 
-### Docker Build
+### TruffleHog or Semgrep not found
+
+```bash
+# Verify they're installed and in PATH
+which trufflehog
+which semgrep
+
+# If not found, install them:
+pip install trufflehog semgrep
+```
+
+### "AI not configured" error
+
+```bash
+# Check your .env file
+cat .env | grep API_KEY
+
+# Make sure at least one AI key is set:
+GROK_API_KEY=xai-xxx
+# OR
+OPENAI_API_KEY=sk-xxx
+```
+
+### Repository clone fails
+
+Common issues:
+- **Private repos**: Currently only public repos are supported
+- **Large repos**: Repositories over 500MB are rejected
+- **Network issues**: Check your internet connection
+- **Rate limiting**: GitHub may rate limit anonymous clones
+
+### Permission denied on /tmp/vibe-roaster
+
+```bash
+# Create the directory with proper permissions
+mkdir -p /tmp/vibe-roaster
+chmod 755 /tmp/vibe-roaster
+
+# Or change TEMP_DIR in .env to a directory you own
+TEMP_DIR=./temp
+```
+
+---
+
+## 🔧 Advanced Configuration
+
+### Using Docker
 
 ```bash
 # Build image
@@ -501,74 +376,72 @@ docker build -t vibe-roaster-backend .
 
 # Run container
 docker run -p 8000:8000 \
-  --env-file .env \
+  -e ANTHROPIC_API_KEY=your-key \
   vibe-roaster-backend
 ```
 
-### Database Migrations in Production
+### Custom AI Models
 
+Edit `app/services/ai_service.py` to use different models:
+
+```python
+# For Grok
+model="grok-beta"       # Default - free during beta!
+
+# For OpenAI
+model="gpt-4o"          # Default - faster and better than GPT-4
+# model="gpt-4-turbo"   # Alternative
+# model="gpt-3.5-turbo" # Cheaper option
+```
+
+### Adjusting Rate Limits
+
+In `.env`:
 ```bash
-# Run migrations
-alembic upgrade head
+# Allow 10 scans per minute
+RATE_LIMIT_SCANS_PER_MINUTE=10
 
-# Rollback one migration
-alembic downgrade -1
-
-# View migration history
-alembic history
+# Disable rate limiting entirely (not recommended)
+RATE_LIMIT_ENABLED=False
 ```
 
 ---
 
-## 🔧 Common Issues
+## 📊 Performance
 
-### Issue: `ModuleNotFoundError: No module named 'app'`
+### Typical Scan Times
 
-**Solution:** Make sure you're in the `backend` directory and your virtual environment is activated.
+| Repository Size | Average Time |
+|----------------|--------------|
+| Small (< 1MB) | 10-20 seconds |
+| Medium (1-10MB) | 20-45 seconds |
+| Large (10-100MB) | 45-90 seconds |
+| Very Large (100-500MB) | 2-5 minutes |
 
-### Issue: Database connection errors
+**Bottlenecks:**
+1. Git clone (depends on network speed)
+2. Semgrep analysis (depends on code size)
+3. AI generation (1-3 seconds)
 
-**Solution:** 
-- Check PostgreSQL is running: `pg_isready`
-- Verify `DATABASE_URL` in `.env`
-- Ensure database exists: `createdb vibroast`
+### Resource Usage
 
-### Issue: Redis connection errors
-
-**Solution:**
-- Check Redis is running: `redis-cli ping` (should return "PONG")
-- Verify `REDIS_URL` in `.env`
-
-### Issue: Alembic migration errors
-
-**Solution:**
-```bash
-# Reset migrations (CAUTION: destroys data)
-alembic downgrade base
-alembic upgrade head
-
-# Or create fresh database
-dropdb vibroast
-createdb vibroast
-alembic upgrade head
-```
-
----
-
-## 📚 Additional Resources
-
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
-- [Alembic Documentation](https://alembic.sqlalchemy.org/)
-- [Celery Documentation](https://docs.celeryproject.org/)
-- [OpenAI API Documentation](https://platform.openai.com/docs)
-- [GitHub OAuth Documentation](https://docs.github.com/en/developers/apps/building-oauth-apps)
+- **Memory**: ~200-500MB per scan
+- **CPU**: Moderate (scanning is CPU-intensive)
+- **Disk**: Temporary (cleaned up immediately)
+- **Network**: Repository size + AI API calls
 
 ---
 
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](../docs/CONTRIBUTING.md) for development guidelines.
+This is part of a larger project. See [CONTRIBUTING.md](../docs/CONTRIBUTING.md) for guidelines.
+
+**Areas that need help:**
+- Additional language support (Java, Go, Rust)
+- More security rules for Semgrep
+- Better AI prompt engineering
+- Performance optimizations
+- Test coverage
 
 ---
 
@@ -578,5 +451,18 @@ MIT License - See [LICENSE](../LICENSE) for details.
 
 ---
 
-**Questions?** Open an issue or reach out to gerardoram1010@gmail.com
+## 📞 Support
 
+- **Issues**: https://github.com/Gramz10/vibe-roaster/issues
+- **Email**: gerardoram1010@gmail.com
+- **Documentation**: https://github.com/Gramz10/vibe-roaster/tree/main/docs
+
+---
+
+<div align="center">
+
+**Built with FastAPI, Claude 3.5 Sonnet, TruffleHog, and Semgrep**
+
+*Making security reviews fun, one roast at a time* 🔥
+
+</div>
