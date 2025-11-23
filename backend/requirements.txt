@@ -50,3 +50,9 @@ httpx==0.25.1
 # Utilities
 # ============================================================================
 python-slugify==8.0.1
+
+# ============================================================================
+# CI/CD Dependencies
+# ============================================================================
+packaging==24.1  # Required for pip-audit and dependency resolution
+safety==3.2.10   # Security vulnerability scanning
