@@ -57,15 +57,11 @@ class AIService:
         Returns:
             tuple: (roast_text, suggested_fixes)
         """
+        # Prepare findings summary for AI (or congratulations message if clean)
         if not findings:
-            return (
-                "🎉 Congrats! Your code is cleaner than a whistle in a sanitization factory. "
-                "No vulnerabilities found - you actually read the security docs!",
-                []
-            )
-
-        # Prepare findings summary for AI
-        findings_summary = self._format_findings_for_ai(findings)
+            findings_summary = "NO VULNERABILITIES FOUND! The code is completely secure - zero issues detected."
+        else:
+            findings_summary = self._format_findings_for_ai(findings)
 
         # Try Grok first, fall back to OpenAI, then rule-based
         if self.settings.grok_api_key:
@@ -106,9 +102,45 @@ class AIService:
             # Pick a random personality for variety
             personality = random.choice(self.roast_personalities)
             
-            # Vary the prompt structure
-            prompt_templates = [
-                f"""You are a {personality['name'].replace('_', ' ')}. {personality['system']}
+            # Check if this is a perfect score (no vulnerabilities)
+            is_perfect = not findings
+            
+            # Vary the prompt structure based on whether code is clean or vulnerable
+            if is_perfect:
+                prompt_templates = [
+                    f"""You are a {personality['name'].replace('_', ' ')}. {personality['system']}
+
+PLOT TWIST: This code is actually SECURE! No vulnerabilities found!
+
+{findings_summary}
+
+Write a SHORT, HILARIOUS congratulatory message (max 3 sentences) using {personality['style']}. Be genuinely impressed but keep it funny and memorable. NO GENERIC PRAISE - make it unique!
+
+Format:
+ROAST: [Your 3-sentence celebration]""",
+                    
+                    f"""Security audit complete... wait, WHAT?! 🎉
+
+Context: {personality['system']}
+Style: {personality['style']}
+
+Result: {findings_summary}
+
+This almost NEVER happens! Deliver a UNIQUE, FUNNY 3-sentence congratulation that celebrates secure coding. Be creative - no boring corporate speak!
+
+ROAST: [Your comedy gold celebration]""",
+                    
+                    f"""You're {personality['name'].replace('_', ' ')} and you just scanned code expecting to roast it...
+
+{findings_summary}
+
+But there's nothing to roast! Write a CREATIVE, MEMORABLE 3-sentence response expressing shock/respect/humor. {personality['style']}. Every word should be unique!
+
+ROAST: [Your surprised celebration]"""
+                ]
+            else:
+                prompt_templates = [
+                    f"""You are a {personality['name'].replace('_', ' ')}. {personality['system']}
 
 Roast this terrible code! Here are the security findings:
 {findings_summary}
@@ -120,8 +152,8 @@ ROAST: [Your 3-sentence burn]
 FIXES:
 1. [Type]: [One-line fix]
 ...""",
-                
-                f"""Security audit complete. Time for the roast! 🔥
+                    
+                    f"""Security audit complete. Time for the roast! 🔥
 
 Context: {personality['system']}
 Style: {personality['style']}
@@ -133,8 +165,8 @@ Deliver a HILARIOUS 3-sentence security roast that would make developers cry (bu
 
 ROAST: [Your comedy gold here]
 FIXES: [Your wisdom here]""",
-                
-                f"""Imagine you're {personality['name'].replace('_', ' ')} reviewing this code.
+                    
+                    f"""Imagine you're {personality['name'].replace('_', ' ')} reviewing this code.
 
 {findings_summary}
 
@@ -143,10 +175,20 @@ Task: Write the most MEMORABLE and FUNNY 3-sentence roast possible. {personality
 Output format:
 ROAST: [3 sentences of pure fire]
 FIXES: [Numbered list of solutions]"""
-            ]
+                ]
             
             selected_prompt = random.choice(prompt_templates)
 
+            # Boost creativity settings for perfect scores
+            if is_perfect:
+                temp = random.uniform(1.0, 1.3)  # Max creativity for celebrations
+                presence = 0.8  # Strong encouragement for new content
+                frequency = 0.5  # Heavy penalty for repetition
+            else:
+                temp = random.uniform(0.85, 1.1)  # Higher temp for more creativity
+                presence = 0.6  # Encourage new topics/phrases
+                frequency = 0.3  # Reduce repetition
+            
             response = client.chat.completions.create(
                 model="grok-beta",
                 messages=[
@@ -157,9 +199,9 @@ FIXES: [Numbered list of solutions]"""
                     {"role": "user", "content": selected_prompt}
                 ],
                 max_tokens=1024,
-                temperature=random.uniform(0.85, 1.1),  # Higher temp for more creativity
-                presence_penalty=0.6,  # Encourage new topics/phrases
-                frequency_penalty=0.3   # Reduce repetition
+                temperature=temp,
+                presence_penalty=presence,
+                frequency_penalty=frequency
             )
 
             response_text = response.choices[0].message.content
@@ -190,9 +232,44 @@ FIXES: [Numbered list of solutions]"""
             # Use same personality system for consistency
             personality = random.choice(self.roast_personalities)
             
-            # Vary the prompt
-            prompt_variants = [
-                f"""Channel your inner {personality['name'].replace('_', ' ')}. {personality['system']}
+            # Check if this is a perfect score
+            is_perfect = not findings
+            
+            # Vary the prompt based on whether code is clean or vulnerable
+            if is_perfect:
+                prompt_variants = [
+                    f"""Channel your inner {personality['name'].replace('_', ' ')}. {personality['system']}
+
+Code audit result:
+{findings_summary}
+
+WAIT, WHAT?! The code is actually secure! Deliver a UNIQUE, HILARIOUS 3-sentence congratulation. Style: {personality['style']}. Be creative and memorable!
+
+ROAST: [Your celebratory masterpiece]""",
+                    
+                    f"""Security roast time... or is it? 🎉
+
+Your persona: {personality['system']}
+Your style: {personality['style']}
+
+The result:
+{findings_summary}
+
+NO ROAST NEEDED! Create an ORIGINAL, FUNNY 3-sentence celebration that praises secure coding. Make it unforgettable!
+
+ROAST: [Your shocked praise]""",
+                    
+                    f"""You're {personality['name'].replace('_', ' ')} ready to destroy some code, but...
+
+{findings_summary}
+
+Nothing to roast! React with a CREATIVE, MEMORABLE 3-sentence response using {personality['style']}. Express genuine surprise/respect with humor!
+
+ROAST: [Your impressed reaction]"""
+                ]
+            else:
+                prompt_variants = [
+                    f"""Channel your inner {personality['name'].replace('_', ' ')}. {personality['system']}
 
 Code audit findings:
 {findings_summary}
@@ -203,8 +280,8 @@ Then provide fixes.
 
 ROAST: [Your masterpiece]
 FIXES: [Your solutions]""",
-                
-                f"""Security roast time! 🔥
+                    
+                    f"""Security roast time! 🔥
 
 Your persona: {personality['system']}
 Your style: {personality['style']}
@@ -216,8 +293,8 @@ Create an ORIGINAL, SAVAGE 3-sentence roast that developers will remember foreve
 
 ROAST: [Make it hurt]
 FIXES: [Make it better]""",
-                
-                f"""You're {personality['name'].replace('_', ' ')} and you just found these vulnerabilities:
+                    
+                    f"""You're {personality['name'].replace('_', ' ')} and you just found these vulnerabilities:
 
 {findings_summary}
 
@@ -226,10 +303,20 @@ React with a CREATIVE, FUNNY 3-sentence roast using {personality['style']}. Be o
 Format:
 ROAST: [Your fire]
 FIXES: [Your wisdom]"""
-            ]
+                ]
             
             selected_prompt = random.choice(prompt_variants)
 
+            # Boost creativity settings for perfect scores
+            if is_perfect:
+                temp = random.uniform(1.1, 1.4)  # Max creativity for celebrations
+                presence = 0.8  # Strong encouragement for new content
+                frequency = 0.6  # Heavy penalty for repetition
+            else:
+                temp = random.uniform(0.9, 1.2)  # Higher temp for variety
+                presence = 0.6  # Encourage diverse content
+                frequency = 0.4  # Reduce repetition more than Grok
+            
             response = client.chat.completions.create(
                 model="gpt-4o",  # Using GPT-4o (faster and better than GPT-4)
                 messages=[
@@ -240,9 +327,9 @@ FIXES: [Your wisdom]"""
                     {"role": "user", "content": selected_prompt}
                 ],
                 max_tokens=1024,
-                temperature=random.uniform(0.9, 1.2),  # Higher temp for variety
-                presence_penalty=0.6,  # Encourage diverse content
-                frequency_penalty=0.4   # Reduce repetition more than Grok
+                temperature=temp,
+                presence_penalty=presence,
+                frequency_penalty=frequency
             )
 
             response_text = response.choices[0].message.content
