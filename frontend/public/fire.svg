@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="fireGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE66D;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF4757;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path d="M50 10 C 30 30, 20 50, 30 70 C 35 80, 45 85, 50 85 C 55 85, 65 80, 70 70 C 80 50, 70 30, 50 10 Z" 
+        fill="url(#fireGradient)" 
+        stroke="#FF4757" 
+        stroke-width="2"/>
+  <ellipse cx="50" cy="45" rx="8" ry="12" fill="#FFE66D" opacity="0.8"/>
+</svg>
+
